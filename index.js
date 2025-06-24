@@ -1,20 +1,17 @@
-const express = require("express");
+const fs = require('fs');
 
-const userRouter = require("./routes/user");
-const {connectMongoDb} = require("./connection");
-const {logReqRes} = require("./middlewares")
+function logReqRes(fileName){
+    return (req, res, next) => {
+        fs.appendFile(
+            "fileName",
+            `\n${Date.now()}:${req.ip} ${req.method} ${req.path}`,
+            (err, data) =>{
+                next();
+            }
+        );
+    };
+}
 
-const app = express();
-const port = 3000;
-
-// Connection
-connectMongoDb("mongodb://127.0.0.1:27017/vaishnavi_1");
-
-// Middleware - Pluging express to handle JSON data
-app.use(express.urlencoded({extended: false}));
-app.use(logReqRes("log.txt"));
-
-// Routes
-app.use("/user", userRouter);
-
-app.listen(port, () => console.log(`Server running on port ${port}`));
+module.exports = {
+    logReqRes,
+}
